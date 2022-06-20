@@ -25,25 +25,22 @@ const getYearlyTemps = async () => {
     }
 }
 
-const buildMonthlyTempObject = json => {
-    let count = 0;
+const groupMonthlyDailyTemps = json => {
+    const monthlyData = {}
+
     for (const item of json) {
-        // console.log(item);
+// console.log(item);
 
-        // Destructure date, time, timezone
-        const [strUTCDate, timestamp, timezone] = item.dt_iso.split(" ");
+        // Destructure date, time, timezone with empty space split;
+        // then split first element by dash
+        const [year, month, day] = item.dt_iso.split(" ")[0].split("-");
 
-        // console.log(strUTCDate);
-
-        // Convert
-        const [year, month, day] = strUTCDate.split("-");
+        // Convert to date object
         const date = new Date(+year, +month - 1, +day);
 
-        // isoDate.toLocaleString("en-US", {timeZone: "UTC"})
-        // console.log(isoDate.toISOString());
 
 // console.log(date);
-        const entry = {
+        const dailyHourlyEntry = {
             weekday_index: date.getDay(),
             weekday: weekday[date.getDay()],
             year: date.getFullYear(),
@@ -51,138 +48,182 @@ const buildMonthlyTempObject = json => {
             day: date.getDate(),
             iso_date: item.dt_iso,
             temp: item.main.temp,
-            temp_max: item.main.temp_max,
-            temp_min: item.main.temp_min,
-            dew_point: item.main.dew_point,
-            feels_like: item.main.feels_like,
-            humidity: item.main.humidity,
-            pressure: item.main.pressure,
+            // temp_max: item.main.temp_max,
+            // temp_min: item.main.temp_min,
+            // dew_point: item.main.dew_point,
+            // feels_like: item.main.feels_like,
+            // humidity: item.main.humidity,
+            // pressure: item.main.pressure,
             weather_status: item.weather[0].main,
             weather_status_description: item.weather[0].description,
         }
-        // console.log(entry);
+// console.log(entry);
 
         // Create key with empty array if key does not exist
         const key = date.getFullYear() + "-" + date.getMonth();
-        if (calendarData[key] === undefined) {
-            calendarData[key] = {};
+        if (monthlyData[key] === undefined) {
+            monthlyData[key] = [];
         }
 
-        // Make new key to overwrite multiple day objects
-        // JSON data containers 24 hour entries per day
-        // Keeping latest hourly temp of 11pm
+        // Add hour entry per day
         dayKey = date.getDate();
-        calendarData[key][dayKey] = entry;
-
-
-        count = count + 1;
-        if (count === 1500) {
-            // break;
+        if (monthlyData[key][dayKey] === undefined) {
+            monthlyData[key][dayKey] = [];
         }
+        monthlyData[key][dayKey].push(dailyHourlyEntry);
     }
 
-        console.log(calendarData);
+    // console.log(monthlyData);
+    return monthlyData;
+}
+
+const groupHourlyTemps = data => {
+    for (const monthkey in data) {
+        // month object contains array of objects
+        const month = data[monthkey];
+
+
+        // Loop through hours of day to transform data
+        for (const daykey in month) {
+            const day = month[daykey];
+
+            // Stats
+            let tempList = [];
+            let statusList = [];
+            let metaDay = 0;
+
+            for (const hour of day) {
+                tempList.push(hour.temp);
+                statusList.push(hour.weather_status);
+                metaDay = hour.day;
+            }
+
+            // Create key with empty array if key does not exist
+            if (calendarData[monthkey] === undefined) {
+                calendarData[monthkey] = [];
+            }
+
+            // Remove duplicate values
+            const weather_status = statusList.filter((value, index, self) => self.indexOf(value) === index);
+
+            calendarData[monthkey].push({
+                day: metaDay,
+                weather_status_description: weather_status,
+                temp: Math.max(...tempList),
+                temp_max: Math.max(...tempList),
+                temp_min: Math.min(...tempList)
+            });
+        }
+    }
+    // console.log(calendarData);
 }
 
 const loadCalender = () => {
-/*
-        <section>
-            <h2>February 1981</h2>
-            <div class="month">
-                <div class="day"></div>
-                <div class="day"></div>
-            </div>
-        </section>
-*/
-    // Hold monthly HTML
+    // Hold monthly HTML to avoid multiple repaints and ...
     const fragment = new DocumentFragment();
 
     for (const monthkey in calendarData) {
         // month array full of day objects
         const month = calendarData[monthkey];
 
+        // Get month and year for title
         const [titleYear, intMonth] = monthkey.split("-");
         const titleMonth = monthNames[intMonth];
 
-        console.log(monthkey)
+
+        // -----------------------------------------------------
+
+        // Parent container for each month
         const section = document.createElement("section");
 
-        // Create heading 2
-        const heading2 = document.createElement("h2");
-        heading2.textContent = `${titleMonth} ${titleYear}`;
+        // Create sticky header container
+        const stickyHeader = document.createElement("div");
+        stickyHeader.className = "sticky-header";
+        stickyHeader.innerHTML = `
+            <h2>${titleMonth} ${titleYear}</h2>
+            <div class="weekdays">
+                <div>Sunday</div>
+                <div>Monday</div>
+                <div>Tuesday</div>
+                <div>Wednesay</div>
+                <div>Thursday</div>
+                <div>Friday</div>
+                <div>Saturday</div>
+            </div>
+        `;
+
+        // Add sticky header to section
+        section.appendChild(stickyHeader);
+
+
+        // -----------------------------------------------------
+
 
         // Create month div container
         const monthDiv = document.createElement("div");
         monthDiv.className = "month";
 
-        // Add heading and monthy div to section
-        section.appendChild(heading2);
-        section.appendChild(monthDiv);
-
-
         // Generate empty day boxes to fill up the week
         let i = 0;
         while (i < month[Object.keys(month)[0]].weekday_index) {
             const emptyDay = document.createElement("div");
+            emptyDay.className = "day";
             monthDiv.appendChild(emptyDay);
             i++;
         }
 
-
-
         // Loop through day objects
         for (const daykey in month) {
             const day = month[daykey];
-            // console.log(day);
+
             const dayDiv = document.createElement("div");
             dayDiv.className = "day";
-
-
-/*
-                    <div class="corner">1</div>
-                    <div class="temp">
-                        72 &#176;F
-                        <span>Cloudy with meatballs</span>
+            dayDiv.dataset.temp = day.temp;
+            dayDiv.innerHTML = `
+                <div class="corner">${day.day}</div>
+                <div class="temp">
+                    <div>
+                        <span>Hi:</span> ${day.temp_max} &#176;F
                     </div>
-                    <small class="minmax">
-                       min: 69, max: 12
-                    </small>
-*/
-            const corner = document.createElement("div");
-            corner.className = "corner";
-            corner.textContent = day.day;
-            dayDiv.appendChild(corner);
-
-            const temp = document.createElement("div");
-            temp.className = "temp";
-            temp.textContent = `${day.temp} F`;
-            dayDiv.appendChild(temp);
-
-            const tempStatus = document.createElement("span");
-            tempStatus.textContent = day.weather_status_description;
-            temp.appendChild(tempStatus);
-
-            const minmax = document.createElement("small");
-            minmax.className = "minmax";
-            minmax.textContent = `min: ${day.temp_min}, max: ${day.temp_max}`;
-            dayDiv.appendChild(minmax);
-
-
-
-
-
+                    <div>
+                        <span>Lo:</span> ${day.temp_min} &#176;F
+                    </div>
+                </div>
+                <small class="status">
+                    ${day.weather_status_description}
+                </small>
+            `;
 
             // Add day HTML to monthly container
             monthDiv.appendChild(dayDiv);
         }
 
+        // Add monthy div to section
+        section.appendChild(monthDiv);
 
-
+        // Add section to fragment
         fragment.appendChild(section);
     }
 
+    // Add fragment to calender element
     calendar.appendChild(fragment);
 }
+
+//---------------------------------------------------------------------------------------------------
+
+
+const applyRule = (min, max, bgcolor) => {
+    const days = document.querySelectorAll("div.day");
+
+    for (const day of days) {
+        const temp = parseFloat(day.dataset.temp);
+        if (temp >= min && temp <= max) {
+            day.style.backgroundColor = bgcolor;
+        }
+    }
+}
+
+
 
 
 // INITIAL PAGE LOAD
@@ -191,10 +232,12 @@ const loadCalender = () => {
 const init = () => {
     getYearlyTemps()
     .then(data => {
-        buildMonthlyTempObject(data);
+        const monthlyDailyTemps = groupMonthlyDailyTemps(data);
+        groupHourlyTemps(monthlyDailyTemps);
     })
     .then(() => {
         loadCalender();
+        // applyRule(74.7, 75, "red");
     });
 };
 

@@ -1,10 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;600;700&display=swap');
 
 :root {
-    --background: #845ec2;
-    --section-background: #fbeaff;
-    /* --button-background: #ff6f96;
-    --button-background-hover: #fd5683; */
+    --background: #007CCC;
+    --button-background: #ff6f96;
+    --button-background-hover: #fd5683;
 }
 
 *,
@@ -26,35 +25,42 @@ body {
 }
 
 header h1 {
+    margin: 0 0 2em;
+    font-size: 2rem;
+}
+
+main {
+    width: 100%;
+    max-width: 2400px;
+}
+
+section {
+    min-height: 100px;
+    margin-bottom: 5em;
+}
+
+section h2 {
+    margin: 0 0 0.5em;
     font-size: 3rem;
     color: #fff;
     text-align: center;
 }
 
-main {
-    width: 100%;
-    max-width: 2000px;
+.sticky-header {
+    position: sticky;
+    z-index: 100;
+    top: 0;
+    padding-top: 2em;
+    background-color: var(--background);
 }
 
-section {
-    min-height: 100px;
-    margin-bottom: 2em;
-    /* padding: 1.1em 1.5em; */
-    /* background-color: var(--section-background); */
-    /* border-radius: 5px; */
-}
-
-section h2 {
-    margin: 0 0 1em;
-    text-align: center;
-}
-
-.month {
+.month,
+.weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
 }
 
-.day {
+.month > .day {
     position: relative;
     min-height: 150px;
     padding: 1em;
@@ -65,19 +71,28 @@ section h2 {
     flex-direction: column;
 }
 
+.weekdays > div {
+    padding: 0.8em 1em;
+    border: 1px solid #444;
+    background-color: #7CB4C4;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+}
+
 .corner {
     position: absolute;
     top: 0;
     left: 0;
     padding: 5px 15px;
-    /* border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd; */
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
     background-color: #fff;
 }
 
 .temp {
     flex: 1;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
 
     display: flex;
@@ -90,6 +105,27 @@ section h2 {
     font-size: 0.8rem;
     font-weight: 600;
     font-style: italic;
+}
+
+.status {
+    text-align: left;
+}
+
+#settings {
+    position: fixed;
+    z-index: 200;
+    top: 0px;
+    right: 1%;
+    padding: 1em;
+    background-color: var(--button-background);
+    border: 0;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+}
+
+#settings:hover {
+    background-color: var(--button-background-hover);
 }
 
 @media screen and (min-width: 700px) {

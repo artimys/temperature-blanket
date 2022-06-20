@@ -4,28 +4,48 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature Blanket App</title>
+    <title>Temperature Blanket</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
-        <h1>Temperature Blanket App</h1>
+        <h1>Temperature Blanket</h1>
     </header>
 
     <main id="calendar">
+        <!--
         <section>
-            <h2>January 1981</h2>
+            <div class="sticky-header">
+                <h2>January 1981</h2>
+
+                <div class="weekdays">
+                    <div>Sunday</div>
+                    <div>Monday</div>
+                    <div>Tuesday</div>
+                    <div>Wednesay</div>
+                    <div>Thursday</div>
+                    <div>Friday</div>
+                    <div>Saturday</div>
+                </div>
+            </div>
+
             <div class="month">
                 <div class="day" style="background-color: pink;">
                     <div class="corner">1</div>
                     <div class="temp">
-                        72 &#176;F
-                        <span>Cloudy with meatballs</span>
+                        <div>
+                            <span>Hi:</span> 72 &#176;F
+                        </div>
+                        <div>
+                            <span>Lo:</span> 68 &#176;F
+                        </div>
                     </div>
-                    <small class="minmax">
-                       min: 69, max: 12
+                    <small class="status">
+                        Cloudy with meatballs
                     </small>
                 </div>
+
                 <div class="day" style="background-color: teal";>
                     <div class="corner">2</div>
                     <div class="temp">
@@ -33,9 +53,10 @@
                         <span>Sunny</span>
                     </div>
                     <small class="minmax">
-                       min: 69, max: 12
+                        Cloudy, Broken Clouds
                     </small>
                 </div>
+
                 <div class="day">3</div>
                 <div class="day">4</div>
                 <div class="day">5</div>
@@ -45,23 +66,11 @@
                 <div class="day">9</div>
             </div>
         </section>
-<!--
-        <section>
-            <h2>February 1981</h2>
-            <div class="month">
-                <div class="day"></div>
-                <div class="day"></div>
-                <div class="day">1</div>
-                <div class="day">2</div>
-                <div class="day">3</div>
-                <div class="day">4</div>
-                <div class="day">5</div>
-                <div class="day">6</div>
-                <div class="day">7</div>
-                <div class="day">8</div>
-                <div class="day">9</div>
-            </div>
-        </section> -->
+        -->
+
+        <button id="settings">
+            Settings
+        </button>
     </main>
 
 
