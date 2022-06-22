@@ -52,12 +52,17 @@ app.get('/temps', (req, res) => {
 
 app.post('/colors', async (req, res) => {
      const results = await db.createColor(req.body);
-     res.status(201).json({ id: results[0] });
+     res.status(200).json({ id: results[0] });
 });
 
 app.get('/colors', async (req, res) => {
      const colors = await db.getAllColors();
-     res.status(200).json({ colors });
+     res.status(200).json( colors );
+});
+
+app.get('/colors/:id', async (req, res) => {
+     const color = await db.getColor(req.params.id);
+     res.status(200).json( color[0] );
 });
 
 app.patch('/colors/:id', async (req, res) => {

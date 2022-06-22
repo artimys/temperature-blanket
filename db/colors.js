@@ -8,6 +8,10 @@ function getAllColors() {
     return knex("colors").select("*");
 }
 
+function getColor(id) {
+    return knex("colors").where("id", id);
+}
+
 function deleteColor(id) {
     return knex("colors").where("id", id).del();
 }
@@ -19,6 +23,7 @@ function updateColor(id, color) {
 module.exports = {
     createColor,
     getAllColors,
+    getColor,
     deleteColor,
     updateColor
 }
