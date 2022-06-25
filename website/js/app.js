@@ -213,7 +213,7 @@ const addColor = async () => {
 const updateColor = async event => {
     const element = event.target;
 
-    if (element.className === "updateColor") {
+    if (element.classList.contains("updateColor")) {
         event.preventDefault();
         const colorId = element.dataset.id;
 
@@ -245,7 +245,7 @@ const updateColor = async event => {
 const removeColor = async event => {
     const element = event.target;
 
-    if (element.className === "removeColor") {
+    if (element.classList.contains("removeColor")) {
         event.preventDefault();
 
         const colorId = element.dataset.id;
