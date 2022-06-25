@@ -16,7 +16,6 @@ button,
 label,
 input[type="submit"] {
     font-weight: 600;
-    color: #fff;
     cursor: pointer;
 }
 
@@ -130,6 +129,7 @@ section h2 {
     border: 2px dashed #fff;
     border-radius: 5px;
     padding: 0.5em;
+    color: #fff;
 }
 
 #open:hover {
@@ -142,6 +142,7 @@ section h2 {
     top: 10px;
     right: 15px;
     background-color: transparent;
+    color: #eee;
 
     opacity: 0;
     transform: translateX(100%);
@@ -196,21 +197,22 @@ section h2 {
     padding: 0.5em;
 }
 
-.color-grid input[type="submit"] {
+.btn {
     background-color: var(--button-background);
-    border: 1px solid #444;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 0.5em;
+    padding: 0.3em 0.5em;
     font-weight: 600;
+    color: #fff;
 }
 
-.color-grid input[type="submit"]:hover {
+.btn:hover {
     background-color: var(--button-background-hover);
 }
 
-.removeColor {
-    color: #444;
-}
-
-@media screen and (min-width: 700px) {
+.btn.btn-remove {
+    background-color: transparent;
+    border: 0;
+    color: #fff;
+    float: right;
 }
