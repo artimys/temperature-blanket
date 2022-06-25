@@ -2,7 +2,6 @@ const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Sa
 const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 const calendar = document.querySelector("main#calendar");
-const calendarData = {};
 const colorList = document.querySelector("#colorList");
 
 
@@ -60,113 +59,38 @@ const deleteData = async (url) => {
 
 //---------------------------------------------------------------------------------------------------
 
-const groupMonthlyDailyTemps = json => {
-    const monthlyData = {}
+const getCalendarData = async () => {
+    const response = await fetch("http://localhost:8000/js/king81.json");
 
-    for (const item of json) {
-// console.log(item);
+    const temperatureData = await response.json();
 
-        // Destructure date, time, timezone with empty space split;
-        // then split first element by dash
-        const [year, month, day] = item.dt_iso.split(" ")[0].split("-");
+    const monthlyData = temperatureData.reduce((groupedMonths, day) => {
+        const groupKey = day.group_key;
 
-        // Convert to date object
-        const date = new Date(+year, +month - 1, +day);
-
-
-// console.log(date);
-        const dailyHourlyEntry = {
-            weekday_index: date.getDay(),
-            weekday: weekday[date.getDay()],
-            year: date.getFullYear(),
-            month: date.getMonth() + 1,
-            day: date.getDate(),
-            iso_date: item.dt_iso,
-            temp: item.main.temp,
-            // temp_max: item.main.temp_max,
-            // temp_min: item.main.temp_min,
-            // dew_point: item.main.dew_point,
-            // feels_like: item.main.feels_like,
-            // humidity: item.main.humidity,
-            // pressure: item.main.pressure,
-            weather_status: item.weather[0].main,
-            weather_status_description: item.weather[0].description,
-        }
-// console.log(entry);
-
-        // Create key with empty array if key does not exist
-        const key = date.getFullYear() + "-" + date.getMonth();
-        if (monthlyData[key] === undefined) {
-            monthlyData[key] = [];
+        if (groupedMonths[groupKey] == null) {
+            groupedMonths[groupKey] = []
         }
 
-        // Add hour entry per day
-        dayKey = date.getDate();
-        if (monthlyData[key][dayKey] === undefined) {
-            monthlyData[key][dayKey] = [];
-        }
-        monthlyData[key][dayKey].push(dailyHourlyEntry);
-    }
+        groupedMonths[groupKey].push(day);
+        return groupedMonths;
 
-    // console.log(monthlyData);
+    }, {});
+
+    console.log("have calender data");
     return monthlyData;
-}
+};
 
-const groupHourlyTemps = data => {
-    for (const monthkey in data) {
-        // month object contains array of objects
-        const month = data[monthkey];
-
-
-        // Loop through hours of day to transform data
-        for (const daykey in month) {
-            const day = month[daykey];
-
-            // Stats
-            let tempList = [];
-            let statusList = [];
-            let metaDay = 0;
-            let metaWeekdayIndex = 0;
-
-            for (const hour of day) {
-                tempList.push(hour.temp);
-                statusList.push(hour.weather_status);
-                metaDay = hour.day;
-                metaWeekdayIndex= hour.weekday_index;
-            }
-
-            // Create key with empty array if key does not exist
-            if (calendarData[monthkey] === undefined) {
-                calendarData[monthkey] = [];
-            }
-
-            // Remove duplicate values
-            const weather_status = statusList.filter((value, index, self) => self.indexOf(value) === index);
-
-            calendarData[monthkey].push({
-                day: metaDay,
-                weather_status_description: weather_status,
-                temp: Math.max(...tempList),
-                temp_max: Math.max(...tempList),
-                temp_min: Math.min(...tempList),
-                weekday_index: metaWeekdayIndex
-            });
-        }
-    }
-    // console.log(calendarData);
-}
-
-const loadCalender = () => {
+const loadCalender = (calendarData) => {
     // Hold monthly HTML to avoid multiple repaints and ...
     const fragment = new DocumentFragment();
 
     for (const monthkey in calendarData) {
-        // month array full of day objects
+        // month[array] full of day objects
         const month = calendarData[monthkey];
 
         // Get month and year for title
         const [titleYear, intMonth] = monthkey.split("-");
-        const titleMonth = monthNames[intMonth];
+        const titleMonth = monthNames[parseInt(intMonth)-1];
 
 
         // -----------------------------------------------------
@@ -201,40 +125,43 @@ const loadCalender = () => {
         const monthDiv = document.createElement("div");
         monthDiv.className = "month";
 
-        // Generate empty day boxes to fill up the week
+
+        // Generate empty day boxes to fill up the first week
+        const dayName = month[0].date.day_name;
+        const dayIndex = weekday.indexOf(dayName);
         let i = 0;
-        while (i < month[Object.keys(month)[0]].weekday_index) {
+        while (i < dayIndex) {
             const emptyDay = document.createElement("div");
             emptyDay.className = "day";
             monthDiv.appendChild(emptyDay);
             i++;
         }
 
-        // Loop through day objects
-        for (const daykey in month) {
-            const day = month[daykey];
 
+        // Loop through day objects
+        month.forEach( day => {
             const dayDiv = document.createElement("div");
             dayDiv.className = "day";
             dayDiv.dataset.temp = day.temp;
+
             dayDiv.innerHTML = `
-                <div class="corner">${day.day}</div>
+                <div class="corner">${day.date.day}</div>
                 <div class="temp">
                     <div>
-                        <span>Hi:</span> ${day.temp_max} <span>&#176;F</span>
+                        <span>Hi:</span> ${day.max_temp} <span>&#176;F</span>
                     </div>
                     <div>
-                        <span>Lo:</span> ${day.temp_min} <span>&#176;F</span>
+                        <span>Lo:</span> ${day.min_temp} <span>&#176;F</span>
                     </div>
                 </div>
                 <small class="status">
-                    ${day.weather_status_description}
+                    ${day.weather.main}
                 </small>
             `;
 
             // Add day HTML to monthly container
             monthDiv.appendChild(dayDiv);
-        }
+        });
 
         // Add monthy div to section
         section.appendChild(monthDiv);
@@ -248,6 +175,25 @@ const loadCalender = () => {
 }
 
 //---------------------------------------------------------------------------------------------------
+
+const getColors = async () => {
+    const response = await fetch("http://localhost:8000/colors");
+    const colorData = await response.json();
+    console.log("have color data");
+    return colorData;
+};
+
+const loadColors = (colors) => {
+    const fragment = new DocumentFragment();
+
+    for (const color of colors) {
+        const form = createColorForm(color);
+        fragment.appendChild(form);
+    }
+
+    colorList.appendChild(fragment);
+    console.log("colors added");
+};
 
 // ADD COLOR
 const addColor = () => {
@@ -285,7 +231,15 @@ const removeColor = element => {
 
         deleteData("http://localhost:8000/colors/" + colorId)
             .then(response => {
+                // Remove color form from sidebar
                 document.querySelector(`#colorForm-${colorId}`).remove();
+
+                // Remove all color from calendar
+                document.querySelectorAll(".day").forEach((day) => {
+                    day.style.backgroundColor = "";
+                });
+
+                // Re-apply colors
             });
     }
 }
@@ -321,7 +275,7 @@ const createColorForm = color => {
     return form;
 }
 
-//
+// APPLY COLOR
 const applyRule = (min, max, bgcolor) => {
     const days = document.querySelectorAll("div.day");
 
@@ -334,11 +288,11 @@ const applyRule = (min, max, bgcolor) => {
 };
 
 
-// INITIAL PAGE LOAD
+// PAGE LOAD
 //---------------------------------------------------------------------------------------------------
 
 
-const init = () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // Add click event for add color form
     const addColorForm = document.querySelector("#addColorForm");
     addColorForm.addEventListener("submit", event => {
@@ -352,29 +306,17 @@ const init = () => {
         removeColor(event.target);
     });
 
-    // Get temperature data
-    getData("http://localhost:8000/temps")
-        .then(data => {
-            const monthlyDailyTemps = groupMonthlyDailyTemps(data);
-            groupHourlyTemps(monthlyDailyTemps);
-        })
-        .then(() => {
-            loadCalender();
-        });
+    try {
 
-    // Get color rulesets for calendar
-    getData("http://localhost:8000/colors")
-        .then(colors => {
-            const fragment = new DocumentFragment();
+        // Get temperature data
+        const calendarData = await getCalendarData();
+        loadCalender(calendarData);
 
-            for (const color of colors) {
-                // console.log(color);
-                const form = createColorForm(color);
-                fragment.appendChild(form);
-            }
+        // Get color ruleset for calender
+        const colorData = await getColors();
+        loadColors(colorData);
 
-            colorList.appendChild(fragment);
-        });
-};
-
-init();
+    } catch (error) {
+        console.error("init error:", error);
+    }
+});

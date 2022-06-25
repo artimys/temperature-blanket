@@ -1,5 +1,5 @@
 // Weather data imported from file
-const TemperatureData = require('./kingston_1981.json');
+// const TemperatureData = require('./kingston_1981.json');
 
 // Express to run server and routes
 const express = require("express");
@@ -42,11 +42,11 @@ const server = app.listen(port, listening);
 
 
 
-app.get('/temps', (req, res) => {
-     console.log("GET '/temps'");
-     // console.log(" -> response:", TemperatureData);
-     res.send(TemperatureData);
-});
+// app.get('/temps', (req, res) => {
+//      console.log("GET '/temps'");
+//      // console.log(" -> response:", TemperatureData);
+//      res.send(TemperatureData);
+// });
 
 
 
