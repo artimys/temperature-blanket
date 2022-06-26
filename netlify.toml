@@ -9,7 +9,3 @@
 
   # The port that the netlify dev will be accessible on
   port = 8000
-
-#[[redirects]]
-  #from = "/server/*"
-  #to = "/.netlify/functions/:splat"

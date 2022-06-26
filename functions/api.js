@@ -28,8 +28,8 @@ var Airtable = require('airtable');
 var base = new Airtable({
      endpointUrl: 'https://api.airtable.com',
      apiKey: process.env.AIRTABLE_API_KEY
-}).base('appOcwnFd89vGiYT4');
-const table = base("colors");
+}).base(process.env.AIRTABLE_BASE_ID);
+const table = base(process.env.AIRTABLE_TABLE_NAME);
 
 
 
@@ -101,7 +101,8 @@ router.delete('/colors/:id', async (req, res) => {
 });
 
 
-app.use("/.netlify/functions/server", router);
+app.use("/.netlify/functions/api", router);
+// app.use("/api", router);
 
 
 module.exports.handler = serverless(app);
