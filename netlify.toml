@@ -1,0 +1,15 @@
+[build]
+  functions = "functions"
+
+[dev]
+  publish = "dist"
+
+  # The port for your application server, framework or site generator
+  #targetPort = 3000
+
+  # The port that the netlify dev will be accessible on
+  port = 8000
+
+#[[redirects]]
+  #from = "/server/*"
+  #to = "/.netlify/functions/:splat"

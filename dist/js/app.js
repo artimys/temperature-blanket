@@ -164,7 +164,7 @@ const loadCalender = (calendarData) => {
 //---------------------------------------------------------------------------------------------------
 
 const getColors = async () => {
-    const response = await fetch("http://localhost:8000/colors");
+    const response = await fetch("http://localhost:8000/.netlify/functions/server/colors");
     const colorData = await response.json();
     return colorData;
 };
@@ -199,7 +199,7 @@ const addColor = async () => {
 
     try {
         // Create new color record
-        await postData("http://localhost:8000/colors", colorData);
+        await postData("http://localhost:8000/.netlify/functions/server/colors", colorData);
 
         // Get and load all colors again
         const colors = await getColors();
@@ -225,7 +225,7 @@ const updateColor = async event => {
 
         try {
             // Update color through API
-            const reponse = await patchData("http://localhost:8000/colors/" + colorId, colorUpdateData);
+            const reponse = await patchData("http://localhost:8000/.netlify/functions/server/colors/" + colorId, colorUpdateData);
 
             // Remove all colors from calendar
             document.querySelectorAll(".day").forEach(day => {
@@ -252,7 +252,7 @@ const removeColor = async event => {
 
         try {
             // Remove color through API
-            const reponse = await deleteData("http://localhost:8000/colors/" + colorId);
+            const reponse = await deleteData("http://localhost:8000/.netlify/functions/server/colors/" + colorId);
 
             // Remove all colors from calendar
             document.querySelectorAll(".day").forEach(day => {
