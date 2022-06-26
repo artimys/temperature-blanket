@@ -270,19 +270,21 @@ const createColorRow = color => {
 
     // Create form for each color
     const section = document.createElement("section");
+    section.dataset.id= id;
+    section.dataset.initial = `${color.min_temp}${color.max_temp}${color.color}`;
     section.className = "color-grid";
     section.innerHTML = `
         <div>
-            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}" step="0.01" min="50" max="110">
+            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}" step="0.01" min="50" max="110" class="control">
         </div>
         <div>
-            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}" step="0.01" min="50" max="110">
+            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}" step="0.01" min="50" max="110" class="control">
         </div>
         <div>
-            <input type="color" name="color_${id}" id="color_${id}" value="${color.color}">
+            <input type="color" name="color_${id}" id="color_${id}" value="${color.color}" class="control">
         </div>
         <div>
-            <button data-id="${id}" class="btn updateColor">save</button>
+            <button id="save_${id}" data-id="${id}" class="btn updateColor btn-update--hide">save</button>
             <button data-id="${id}" class="btn btn-remove removeColor">x</button>
         </div>
     `;
@@ -303,6 +305,27 @@ const applyRule = (min, max, bgcolor) => {
 };
 
 
+const toggleSaveButton = (event) => {
+    if (event.target.classList.contains("control")) {
+        const colorId = event.target.parentElement.parentElement.dataset.id;
+        const initialValues = event.target.parentElement.parentElement.dataset.initial;
+        const saveBtn = document.querySelector(`button#save_${colorId}`);
+
+        // Determine current values
+        const min_temp = document.querySelector(`#min_${colorId}`).value;
+        const max_temp = document.querySelector(`#max_${colorId}`).value;
+        const color = document.querySelector(`#color_${colorId}`).value;
+        const currValues = `${min_temp}${max_temp}${color}`;
+
+        // Hide or show
+        if (initialValues === currValues) {
+            saveBtn.classList.add("btn-update--hide");
+        } else {
+            saveBtn.classList.remove("btn-update--hide");
+        }
+    }
+};
+
 // PAGE LOAD
 //---------------------------------------------------------------------------------------------------
 
@@ -320,6 +343,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Add click event delegation to update color
         updateColor(event);
+    });
+
+    colorList.addEventListener("change", event => {
+        toggleSaveButton(event);
     });
 
     try {
