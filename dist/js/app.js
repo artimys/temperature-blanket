@@ -187,14 +187,10 @@ const loadColors = (colors) => {
 
 // ADD COLOR
 const addColor = async () => {
-    const minValue = document.querySelector("#min").value;
-    const maxValue = document.querySelector("#max").value;
-    const colorValue = document.querySelector("#color").value;
-
     const colorData = {
-        min_temp: minValue,
-        max_temp: maxValue,
-        color: colorValue
+        min_temp: document.querySelector("#min").value,
+        max_temp: document.querySelector("#max").value,
+        color: document.querySelector("#color").value
     };
 
     try {
@@ -277,10 +273,10 @@ const createColorRow = color => {
     section.className = "color-grid";
     section.innerHTML = `
         <div>
-            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}">
+            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}" step="0.01" min="50" max="110">
         </div>
         <div>
-            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}">
+            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}" step="0.01" min="50" max="110">
         </div>
         <div>
             <input type="color" name="color_${id}" id="color_${id}" value="${color.color}">

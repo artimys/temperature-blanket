@@ -56,8 +56,8 @@ router.get('/colors', async (req, res) => {
 router.post('/colors', async (req, res) => {
      try {
           const createdRecord = await table.create({
-               min_temp: parseInt(req.body.min_temp),
-               max_temp: parseInt(req.body.max_temp),
+               min_temp: parseFloat(req.body.min_temp),
+               max_temp: parseFloat(req.body.max_temp),
                color: req.body.color
           });
           res.status(200).json( createdRecord );
@@ -81,8 +81,8 @@ const minifyRecord = (record) => {
 router.patch('/colors/:id', async (req, res) => {
      try {
           const updatedRecord = await table.update(req.params.id, {
-               min_temp: parseInt(req.body.min_temp),
-               max_temp: parseInt(req.body.max_temp),
+               min_temp: parseFloat(req.body.min_temp),
+               max_temp: parseFloat(req.body.max_temp),
                color: req.body.color
           });
           res.status(200).json( updatedRecord );
