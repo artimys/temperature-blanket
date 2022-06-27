@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;600;700&display=swap');
+
+:root {
+    --background: #007CCC;
+    --button-background: #ff6f96;
+    --button-background-hover: #fd5683;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: 'Raleway', sans-serif;
+    font-size: 16px;
+    background-color: var(--background);
+    padding: 2em;
+    margin:0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#calendar {
+    width: 100%;
+    max-width: 1600px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1em;
+}
+
+section h2 {
+    margin: 0 0 0.5em;
+    color: #fff;
+    text-align: center;
+}
+
+.sticky-header {
+    background-color: var(--background);
+}
+
+.month,
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.month > .day {
+    min-height: 40px;
+    padding: 1em;
+    border: 1px solid #444;
+    background-color: #fff;
+    text-align: center;
+}
+
+.weekdays > div {
+    padding: 0.5em;
+    border: 1px solid #444;
+    background-color: #7CB4C4;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+}

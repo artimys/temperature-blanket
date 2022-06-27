@@ -126,6 +126,13 @@ section h2 {
 
 /* SIDEBAR */
 
+#preview {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+}
+
 #open {
     position: fixed;
     z-index: 200;
