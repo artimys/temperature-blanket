@@ -12,6 +12,8 @@ const serverless = require("serverless-http");
 
 // Start up an instance of app
 const app = express();
+//
+const router = express.Router();
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -33,20 +35,19 @@ const table = base(process.env.AIRTABLE_TABLE_NAME);
 
 
 
-const router = express.Router();
-
-
 
 router.get('/colors', async (req, res) => {
      try {
-          const records = await table.select().all();
+          const records = await table.select({
+               view: "Netlify view" // sort managed in view
+          }).all();
           const colors = records.map(record => {
                return {
-                    ...record["fields"],
-                    id: record["id"]
+                    ...record.fields,
+                    id: record.id
                }
-          }).reverse();
-          console.log(colors)
+          })
+          console.log(colors);
           res.status(200).json( colors );
      } catch(err) {
           console.error(err);
@@ -60,7 +61,32 @@ router.post('/colors', async (req, res) => {
                max_temp: parseFloat(req.body.max_temp),
                color: req.body.color
           });
+          console.log(createdRecord);
           res.status(200).json( createdRecord );
+     } catch(err) {
+          console.error(err);
+     }
+});
+
+router.patch('/colors/:id', async (req, res) => {
+     try {
+          const updatedRecord = await table.update(req.params.id, {
+               min_temp: parseFloat(req.body.min_temp),
+               max_temp: parseFloat(req.body.max_temp),
+               color: req.body.color
+          });
+          console.log(updatedRecord);
+          res.status(200).json( updatedRecord );
+     } catch(err) {
+          console.error(err);
+     }
+});
+
+router.delete('/colors/:id', async (req, res) => {
+     try {
+          const deletedRecord = await table.destroy(req.params.id);
+          console.log(deletedRecord);
+          res.status(200).json( deletedRecord );
      } catch(err) {
           console.error(err);
      }
@@ -71,38 +97,8 @@ router.post('/colors', async (req, res) => {
 //      res.status(200).json( record );
 // });
 
-const minifyRecord = (record) => {
-     return {
-          id: record.id,
-          fields: record.fields
-     }
-};
-
-router.patch('/colors/:id', async (req, res) => {
-     try {
-          const updatedRecord = await table.update(req.params.id, {
-               min_temp: parseFloat(req.body.min_temp),
-               max_temp: parseFloat(req.body.max_temp),
-               color: req.body.color
-          });
-          res.status(200).json( updatedRecord );
-     } catch(err) {
-          console.error(err);
-     }
-});
-
-router.delete('/colors/:id', async (req, res) => {
-     try {
-          const deletedRecord = await table.destroy(req.params.id);
-          res.status(200).json( deletedRecord );
-     } catch(err) {
-          console.error(err);
-     }
-});
-
 
 app.use("/.netlify/functions/api", router);
 // app.use("/api", router);
-
 
 module.exports.handler = serverless(app);
