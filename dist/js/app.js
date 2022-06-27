@@ -91,13 +91,13 @@ const loadCalender = (calendarData) => {
         stickyHeader.innerHTML = `
             <h2>${titleMonth} ${titleYear}</h2>
             <div class="weekdays">
-                <div>Sunday</div>
-                <div>Monday</div>
-                <div>Tuesday</div>
-                <div>Wednesay</div>
-                <div>Thursday</div>
-                <div>Friday</div>
-                <div>Saturday</div>
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
             </div>
         `;
 
@@ -134,10 +134,10 @@ const loadCalender = (calendarData) => {
             dayDiv.innerHTML = `
                 <div class="corner">${day.date.day}</div>
                 <div class="temp">
-                    <div>
+                    <div class="temp-hi">
                         <span>Hi:</span> ${day.max_temp} <span>&#176;F</span>
                     </div>
-                    <div>
+                    <div class="temp-low">
                         <span>Lo:</span> ${day.min_temp} <span>&#176;F</span>
                     </div>
                 </div>
@@ -304,7 +304,7 @@ const applyRule = (min, max, bgcolor) => {
     }
 };
 
-
+// TOGGLE SAVE BUTTON
 const toggleSaveButton = (event) => {
     if (event.target.classList.contains("control")) {
         const colorId = event.target.parentElement.parentElement.dataset.id;
