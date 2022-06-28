@@ -345,8 +345,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateColor(event);
     });
 
-    colorList.addEventListener("change", event => {
-        toggleSaveButton(event);
+    // Add event listeners to detect temp and color changes
+    ["keyup", "change"].forEach(eventType => {
+        colorList.addEventListener(eventType, event => {
+            toggleSaveButton(event);
+        });
     });
 
     try {
