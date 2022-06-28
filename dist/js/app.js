@@ -187,10 +187,13 @@ const loadColors = (colors) => {
 
 // ADD COLOR
 const addColor = async () => {
+    const minTemp = document.querySelector("#min");
+    const maxTemp = document.querySelector("#max");
+    const color = document.querySelector("#color");
     const colorData = {
-        min_temp: document.querySelector("#min").value,
-        max_temp: document.querySelector("#max").value,
-        color: document.querySelector("#color").value
+        min_temp: minTemp.value,
+        max_temp: maxTemp.value,
+        color: color.value
     };
 
     try {
@@ -200,6 +203,10 @@ const addColor = async () => {
         // Get and load all colors again
         const colors = await getColors();
         loadColors(colors);
+
+        minTemp.value = 60;
+        maxTemp.value = 80;
+        color.value = "#000000";
     } catch (error) {
         console.error("addColor error:", error);
     }
