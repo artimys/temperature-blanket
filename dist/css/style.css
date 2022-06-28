@@ -1,34 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;600;700&display=swap');
-
-:root {
-    --background: #007CCC;
-    --button-background: #ff6f96;
-    --button-background-hover: #fd5683;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: border-box;
-}
-
-button,
-label,
-input[type="submit"] {
-    font-weight: 600;
-    cursor: pointer;
-}
+@import "defaults.css";
 
 body {
-    font-family: 'Raleway', sans-serif;
-    font-size: 16px;
-    background-color: var(--background);
-    /* padding: 0.5em; */
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    padding: 0.2em;
 }
 
 main {
@@ -59,11 +32,8 @@ section h2 {
 .month,
 .weekdays {
     display: grid;
-    grid-template-columns: repeat(7, minmax(200px, 1fr));
-}
-
-.month {
-    grid-template-rows: 150px;
+    /* grid-template-columns: repeat(7, minmax(100px, 1fr)); */
+    grid-template-columns: repeat(7, 1fr);
 }
 
 .month > .day {
@@ -78,7 +48,7 @@ section h2 {
 }
 
 .weekdays > div {
-    padding: 0.8em 1em;
+    padding: 0.8em 0.5em;
     border: 1px solid #444;
     background-color: #7CB4C4;
     font-weight: 700;
@@ -94,17 +64,24 @@ section h2 {
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     background-color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
 }
 
 .temp {
     flex: 1;
-    font-size: 1.5rem;
+    font-size: 0.8rem;
     font-weight: 700;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.temp-low,
+.temp-hi span {
+    display: none;
 }
 
 .temp span {
@@ -114,17 +91,26 @@ section h2 {
 }
 
 .status {
+    display: none;
     text-align: left;
 }
 
 
 /* SIDEBAR */
 
+#preview {
+    position: fixed;
+    z-index: 110;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+}
+
 #open {
     position: fixed;
     z-index: 200;
-    top: 20px;
-    right: 20px;
+    top: 10px;
+    right: 10px;
     background-color: var(--button-background);
     border: 2px dashed #fff;
     border-radius: 5px;
@@ -140,7 +126,7 @@ section h2 {
     position: fixed;
     z-index: 901;
     top: 10px;
-    right: 15px;
+    right: 25px;
     background-color: transparent;
     color: #eee;
 
@@ -215,4 +201,30 @@ section h2 {
     border: 0;
     color: #fff;
     float: right;
+}
+
+.btn.btn-update--hide {
+    display: none;
+}
+
+@media screen and (min-width: 700px) {
+    body {
+        padding: 1em;
+    }
+
+    .temp {
+        font-size: 1.5rem;
+    }
+
+    .corner {
+        font-size: 0.8rem;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    .status,
+    .temp-low,
+    .temp-hi span {
+        display: inline-block;
+    }
 }

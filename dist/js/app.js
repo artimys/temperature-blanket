@@ -48,7 +48,7 @@ const deleteData = async (url) => {
 //---------------------------------------------------------------------------------------------------
 
 const getCalendarData = async () => {
-    const response = await fetch("http://localhost:8000/js/king81.json");
+    const response = await fetch("/js/king81.json");
 
     const temperatureData = await response.json();
 
@@ -91,13 +91,13 @@ const loadCalender = (calendarData) => {
         stickyHeader.innerHTML = `
             <h2>${titleMonth} ${titleYear}</h2>
             <div class="weekdays">
-                <div>Sunday</div>
-                <div>Monday</div>
-                <div>Tuesday</div>
-                <div>Wednesay</div>
-                <div>Thursday</div>
-                <div>Friday</div>
-                <div>Saturday</div>
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
             </div>
         `;
 
@@ -134,10 +134,10 @@ const loadCalender = (calendarData) => {
             dayDiv.innerHTML = `
                 <div class="corner">${day.date.day}</div>
                 <div class="temp">
-                    <div>
+                    <div class="temp-hi">
                         <span>Hi:</span> ${day.max_temp} <span>&#176;F</span>
                     </div>
-                    <div>
+                    <div class="temp-low">
                         <span>Lo:</span> ${day.min_temp} <span>&#176;F</span>
                     </div>
                 </div>
@@ -164,7 +164,7 @@ const loadCalender = (calendarData) => {
 //---------------------------------------------------------------------------------------------------
 
 const getColors = async () => {
-    const response = await fetch("http://localhost:8000/colors");
+    const response = await fetch("/.netlify/functions/api/colors");
     const colorData = await response.json();
     return colorData;
 };
@@ -187,19 +187,15 @@ const loadColors = (colors) => {
 
 // ADD COLOR
 const addColor = async () => {
-    const minValue = document.querySelector("#min").value;
-    const maxValue = document.querySelector("#max").value;
-    const colorValue = document.querySelector("#color").value;
-
     const colorData = {
-        min_temp: minValue,
-        max_temp: maxValue,
-        color: colorValue
+        min_temp: document.querySelector("#min").value,
+        max_temp: document.querySelector("#max").value,
+        color: document.querySelector("#color").value
     };
 
     try {
         // Create new color record
-        await postData("http://localhost:8000/colors", colorData);
+        await postData("/.netlify/functions/api/colors", colorData);
 
         // Get and load all colors again
         const colors = await getColors();
@@ -225,7 +221,7 @@ const updateColor = async event => {
 
         try {
             // Update color through API
-            const reponse = await patchData("http://localhost:8000/colors/" + colorId, colorUpdateData);
+            const reponse = await patchData("/.netlify/functions/api/colors/" + colorId, colorUpdateData);
 
             // Remove all colors from calendar
             document.querySelectorAll(".day").forEach(day => {
@@ -252,7 +248,7 @@ const removeColor = async event => {
 
         try {
             // Remove color through API
-            const reponse = await deleteData("http://localhost:8000/colors/" + colorId);
+            const reponse = await deleteData("/.netlify/functions/api/colors/" + colorId);
 
             // Remove all colors from calendar
             document.querySelectorAll(".day").forEach(day => {
@@ -274,19 +270,21 @@ const createColorRow = color => {
 
     // Create form for each color
     const section = document.createElement("section");
+    section.dataset.id= id;
+    section.dataset.initial = `${color.min_temp}${color.max_temp}${color.color}`;
     section.className = "color-grid";
     section.innerHTML = `
         <div>
-            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}">
+            <input type="number" name="min_${id}" id="min_${id}" value="${color.min_temp}" step="0.01" min="50" max="110" class="control">
         </div>
         <div>
-            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}">
+            <input type="number" name="max_${id}" id="max_${id}" value="${color.max_temp}" step="0.01" min="50" max="110" class="control">
         </div>
         <div>
-            <input type="color" name="color_${id}" id="color_${id}" value="${color.color}">
+            <input type="color" name="color_${id}" id="color_${id}" value="${color.color}" class="control">
         </div>
         <div>
-            <button data-id="${id}" class="btn updateColor">save</button>
+            <button id="save_${id}" data-id="${id}" class="btn updateColor btn-update--hide">save</button>
             <button data-id="${id}" class="btn btn-remove removeColor">x</button>
         </div>
     `;
@@ -306,6 +304,27 @@ const applyRule = (min, max, bgcolor) => {
     }
 };
 
+// TOGGLE SAVE BUTTON
+const toggleSaveButton = (event) => {
+    if (event.target.classList.contains("control")) {
+        const colorId = event.target.parentElement.parentElement.dataset.id;
+        const initialValues = event.target.parentElement.parentElement.dataset.initial;
+        const saveBtn = document.querySelector(`button#save_${colorId}`);
+
+        // Determine current values
+        const min_temp = document.querySelector(`#min_${colorId}`).value;
+        const max_temp = document.querySelector(`#max_${colorId}`).value;
+        const color = document.querySelector(`#color_${colorId}`).value;
+        const currValues = `${min_temp}${max_temp}${color}`;
+
+        // Hide or show
+        if (initialValues === currValues) {
+            saveBtn.classList.add("btn-update--hide");
+        } else {
+            saveBtn.classList.remove("btn-update--hide");
+        }
+    }
+};
 
 // PAGE LOAD
 //---------------------------------------------------------------------------------------------------
@@ -324,6 +343,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Add click event delegation to update color
         updateColor(event);
+    });
+
+    colorList.addEventListener("change", event => {
+        toggleSaveButton(event);
     });
 
     try {
