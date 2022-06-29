@@ -34,7 +34,13 @@ var base = new Airtable({
 const table = base(process.env.AIRTABLE_TABLE_NAME);
 
 
-
+// Extract only the color data from response
+const justColorData = record => {
+     return {
+          ...record.fields,
+          id: record.id
+     }
+}
 
 router.get('/colors', async (req, res) => {
      try {
@@ -42,11 +48,8 @@ router.get('/colors', async (req, res) => {
                view: "Netlify view" // sort managed in view
           }).all();
           const colors = records.map(record => {
-               return {
-                    ...record.fields,
-                    id: record.id
-               }
-          })
+               return justColorData(record);
+          });
           console.log(colors);
           res.status(200).json( colors );
      } catch(err) {
@@ -61,8 +64,9 @@ router.post('/colors', async (req, res) => {
                max_temp: parseFloat(req.body.max_temp),
                color: req.body.color
           });
-          console.log(createdRecord);
-          res.status(200).json( createdRecord );
+          const colorJSON = justColorData(createdRecord);
+          console.log(colorJSON);
+          res.status(200).json( colorJSON );
      } catch(err) {
           console.error(err);
      }
@@ -75,8 +79,9 @@ router.patch('/colors/:id', async (req, res) => {
                max_temp: parseFloat(req.body.max_temp),
                color: req.body.color
           });
-          console.log(updatedRecord);
-          res.status(200).json( updatedRecord );
+          const colorJSON = justColorData(updatedRecord);
+          console.log(colorJSON);
+          res.status(200).json( colorJSON );
      } catch(err) {
           console.error(err);
      }
@@ -85,20 +90,26 @@ router.patch('/colors/:id', async (req, res) => {
 router.delete('/colors/:id', async (req, res) => {
      try {
           const deletedRecord = await table.destroy(req.params.id);
-          console.log(deletedRecord);
-          res.status(200).json( deletedRecord );
+          const colorJSON = justColorData(deletedRecord);
+          console.log(colorJSON);
+          res.status(200).json( colorJSON );
      } catch(err) {
           console.error(err);
      }
 });
 
-// router.get('/colors/:id', async (req, res) => {
-//      const record = await table.find(req.params.id);
-//      res.status(200).json( record );
-// });
-
+/*
+router.get('/colors/:id', async (req, res) => {
+     try {
+          const record = await table.find(req.params.id);
+          const colorJSON = justColorData(record);
+          console.log(colorJSON);
+          res.status(200).json( record );
+     } catch(err) {
+          console.error(err);
+     }
+});
+*/
 
 app.use("/.netlify/functions/api", router);
-// app.use("/api", router);
-
 module.exports.handler = serverless(app);

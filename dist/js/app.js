@@ -67,7 +67,7 @@ const getCalendarData = async () => {
     return monthlyData;
 };
 
-const loadCalender = (calendarData) => {
+const loadCalendar = (calendarData) => {
     // Hold monthly HTML to avoid multiple repaints and ...
     const fragment = new DocumentFragment();
 
@@ -157,8 +157,22 @@ const loadCalender = (calendarData) => {
         fragment.appendChild(section);
     }
 
-    // Add fragment to calender element
+    // Add fragment to calendar element
     calendar.appendChild(fragment);
+}
+
+const updateColorsToCalendar = async () => {
+    // Remove all colors from calendar
+    document.querySelectorAll(".day").forEach(day => {
+        day.style.backgroundColor = "";
+    });
+
+    // Get all colors again
+    const colors = await getColors();
+    // Apply colors to only calendar
+    for (const color of colors) {
+        applyRule(color.min_temp, color.max_temp, color.color);
+    }
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -173,7 +187,7 @@ const loadColors = (colors) => {
     const fragment = new DocumentFragment();
 
     for (const color of colors) {
-        const form = createColorRow(color);
+        const form = createColorSection(color);
         fragment.appendChild(form);
 
         // Apply color ruleset to calendar
@@ -198,12 +212,13 @@ const addColor = async () => {
 
     try {
         // Create new color record
-        await postData("/.netlify/functions/api/colors", colorData);
+        const newColor = await postData("/.netlify/functions/api/colors", colorData);
+        colorList.appendChild( createColorSection(newColor) );
 
-        // Get and load all colors again
-        const colors = await getColors();
-        loadColors(colors);
+        // Update colors on calendar
+        updateColorsToCalendar();
 
+        // Reset defaults
         minTemp.value = 60;
         maxTemp.value = 80;
         color.value = "#000000";
@@ -228,16 +243,14 @@ const updateColor = async event => {
 
         try {
             // Update color through API
-            const reponse = await patchData("/.netlify/functions/api/colors/" + colorId, colorUpdateData);
+            const updatedColor = await patchData("/.netlify/functions/api/colors/" + colorId, colorUpdateData);
 
-            // Remove all colors from calendar
-            document.querySelectorAll(".day").forEach(day => {
-                day.style.backgroundColor = "";
-            });
+            // Update specific color row using response
+            const updatedSection = document.querySelector(`#section-${updatedColor.id}`);
+            updatedSection.replaceWith( createColorSection(updatedColor) );
 
-            // Get and load all colors again
-            const colors = await getColors();
-            loadColors(colors);
+            // Update colors on calendar
+            updateColorsToCalendar();
         } catch (error) {
             console.error("updateColor error:", error);
         }
@@ -255,16 +268,14 @@ const removeColor = async event => {
 
         try {
             // Remove color through API
-            const reponse = await deleteData("/.netlify/functions/api/colors/" + colorId);
+            const removedColor = await deleteData("/.netlify/functions/api/colors/" + colorId);
 
-            // Remove all colors from calendar
-            document.querySelectorAll(".day").forEach(day => {
-                day.style.backgroundColor = "";
-            });
+            // Remove color section
+            const sectionToRemove = document.querySelector(`#section-${removedColor.id}`);
+            sectionToRemove.remove();
 
-            // Get and load all colors again
-            const colors = await getColors();
-            loadColors(colors);
+            // Update colors on calendar
+            updateColorsToCalendar();
         } catch (error) {
             console.error("removeColor error:", error);
         }
@@ -272,11 +283,12 @@ const removeColor = async event => {
 }
 
 // INSERT COLOR FORM TO SIDEBAR
-const createColorRow = color => {
+const createColorSection = color => {
     const id = color.id;
 
     // Create form for each color
     const section = document.createElement("section");
+    section.id= `section-${id}`;
     section.dataset.id= id;
     section.dataset.initial = `${color.min_temp}${color.max_temp}${color.color}`;
     section.className = "color-grid";
@@ -362,9 +374,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         // Get temperature data
         const calendarData = await getCalendarData();
-        loadCalender(calendarData);
+        loadCalendar(calendarData);
 
-        // Get color ruleset for calender
+        // Get color ruleset for calendar
         const colorData = await getColors();
         loadColors(colorData);
 
