@@ -188,7 +188,8 @@ const loadColors = (colors) => {
 
     for (const color of colors) {
         const form = createColorSection(color);
-        fragment.appendChild(form);
+        // fragment.appendChild(form);
+        fragment.prepend(form);
 
         // Apply color ruleset to calendar
         applyRule(color.min_temp, color.max_temp, color.color);
