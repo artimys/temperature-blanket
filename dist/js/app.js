@@ -186,14 +186,14 @@ const getColors = async () => {
 const loadColors = (colors) => {
     const fragment = new DocumentFragment();
 
-    for (const color of colors) {
+    // for (const color of colors) {
+    colors.forEach((color, index) => {
         const form = createColorSection(color);
-        // fragment.appendChild(form);
         fragment.prepend(form);
 
         // Apply color ruleset to calendar
         applyRule(color.min_temp, color.max_temp, color.color);
-    }
+    })
 
     // TODO -
     colorList.innerHTML = "";
@@ -214,7 +214,7 @@ const addColor = async () => {
     try {
         // Create new color record
         const newColor = await postData("/.netlify/functions/api/colors", colorData);
-        colorList.appendChild( createColorSection(newColor) );
+        colorList.prepend( createColorSection(newColor) );
 
         // Update colors on calendar
         updateColorsToCalendar();
